@@ -19,11 +19,12 @@ public class MainActivity extends AppCompatActivity {
         mMultidimensionalView = findViewById(R.id.multi_dimensional_view);
         LinkedHashMap<String, Float> data = new LinkedHashMap<>();
 
-        data.put("test1", 5.5f);
-        data.put("test2", 9.9f);
-        data.put("test3", 8.7f);
-        data.put("test4", 2.3f);
-        data.put("test5", 4.4f);
+        data.put("眼睛", 5.5f);
+        data.put("脸型", 9.6f);
+        data.put("嘴巴", 8.7f);
+        data.put("鼻子", 2.3f);
+        data.put("眉毛", 4.4f);
+
         mMultidimensionalView.bindData(data);
     }
 }

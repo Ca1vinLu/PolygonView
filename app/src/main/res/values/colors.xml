@@ -4,11 +4,6 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
-    <color name="white">#FFFFFFFF</color>
-    <color name="bg_blue_color">#99DBFE</color>
-    <color name="bg_blue_deep_color">#89D3FA</color>
-    <color name="text_color_black">#333333</color>
-    <color name="text_color_blue">#32b9f1</color>
 
     <color name="polygon_view_inside_color">#f2eeff</color>
     <color name="polygon_view_middle_color">#e5defe</color>
