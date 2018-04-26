@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="polygon_view_edge_width">1dp</dimen>
+    <dimen name="polygon_view_cover_edge_width">2dp</dimen>
+    <dimen name="polygon_view_edge_shadow_radius">4dp</dimen>
+</resources>

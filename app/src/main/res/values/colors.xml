@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="white">#FFFFFFFF</color>
+    <color name="bg_blue_color">#99DBFE</color>
+    <color name="bg_blue_deep_color">#89D3FA</color>
+    <color name="text_color_black">#333333</color>
+    <color name="text_color_blue">#32b9f1</color>
+
+    <color name="polygon_view_inside_color">#f2eeff</color>
+    <color name="polygon_view_middle_color">#e5defe</color>
+    <color name="polygon_view_outside_color">#cbbefd</color>
+    <color name="polygon_view_key_text_color">#977efc</color>
+    <color name="polygon_view_value_text_color">#000000</color>
+    <color name="polygon_view_edge_color">#ffffff</color>
+    <color name="polygon_view_cover_color">#80977efc</color>
+    <color name="polygon_view_cover_edge_color">#977efc</color>
+</resources>
