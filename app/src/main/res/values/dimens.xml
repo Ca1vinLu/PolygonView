@@ -2,7 +2,7 @@
 <resources>
     <dimen name="polygon_view_edge_width">1dp</dimen>
     <dimen name="polygon_view_cover_edge_width">1.5dp</dimen>
-    <dimen name="polygon_view_edge_shadow_radius">4dp</dimen>
+    <dimen name="polygon_view_edge_shadow_radius">8dp</dimen>
     <dimen name="polygon_view_key_text_size">16sp</dimen>
     <dimen name="polygon_view_value_text_size">18sp</dimen>
     <dimen name="polygon_view_text_graph_margin">12dp</dimen>

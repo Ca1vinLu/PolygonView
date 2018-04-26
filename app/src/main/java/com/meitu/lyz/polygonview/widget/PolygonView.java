@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.Typeface;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
@@ -52,7 +53,7 @@ public class PolygonView extends View {
     private Paint.FontMetrics mKeyFontMetrics, mValueFontMetrics;
     private int mTextGraphMargin;
 
-    private int mEdgeColor;
+    private int mEdgeColor, mEdgeShadowColor;
     private int mInsideColor, mMiddleColor, mOutsideColor;
     private int mCoverColor, mCoverEdgeColor;
 
@@ -99,6 +100,7 @@ public class PolygonView extends View {
         mKeyTextColor = ContextCompat.getColor(mContext, R.color.polygon_view_key_text_color);
         mValueTextColor = ContextCompat.getColor(mContext, R.color.polygon_view_value_text_color);
         mEdgeColor = ContextCompat.getColor(mContext, R.color.polygon_view_edge_color);
+        mEdgeShadowColor = ContextCompat.getColor(mContext, R.color.polygon_view_edge_shadow_color);
         mInsideColor = ContextCompat.getColor(mContext, R.color.polygon_view_inside_color);
         mMiddleColor = ContextCompat.getColor(mContext, R.color.polygon_view_middle_color);
         mOutsideColor = ContextCompat.getColor(mContext, R.color.polygon_view_outside_color);
@@ -132,8 +134,10 @@ public class PolygonView extends View {
         mEdgePaint.setStrokeJoin(Paint.Join.ROUND);
         mCoverEdgePaint.setStrokeJoin(Paint.Join.ROUND);
 
-        mEdgeShadowPaint.setShadowLayer(mEdgeShadowRadius, 0, 0, mCoverEdgeColor);
+        mEdgeShadowPaint.setShadowLayer(mEdgeShadowRadius, 0, mEdgeShadowRadius / 2, mCoverEdgeColor);
 
+        mTextPaint.setTypeface(Typeface.DEFAULT_BOLD);
+        mTextPaint.setTextAlign(Paint.Align.CENTER);
         mTextPaint.setTextSize(mKeyTextSize);
         mKeyFontMetrics = mTextPaint.getFontMetrics();
         mTextPaint.setTextSize(mValueTextSize);
@@ -314,7 +318,7 @@ public class PolygonView extends View {
         mTextPaint.setColor(mKeyTextColor);
 
         for (int i = 0; i < mEdgeNum; i++) {
-            canvas.drawText(mKeys[i], mTextPoints[i].x - mTextPaint.measureText(mKeys[i]) / 2, mTextPoints[i].y, mTextPaint);
+            canvas.drawText(mKeys[i], mTextPoints[i].x, mTextPoints[i].y, mTextPaint);
         }
 
         mTextPaint.setTextSize(mValueTextSize);
@@ -322,7 +326,7 @@ public class PolygonView extends View {
         float yOffset = mValueFontMetrics.bottom - mValueFontMetrics.top;
         for (int i = 0; i < mEdgeNum; i++) {
             String value = String.valueOf(mData.get(mKeys[i]));
-            canvas.drawText(value, mTextPoints[i].x - mTextPaint.measureText(value) / 2, mTextPoints[i].y + yOffset, mTextPaint);
+            canvas.drawText(value, mTextPoints[i].x, mTextPoints[i].y + yOffset, mTextPaint);
         }
     }
 
