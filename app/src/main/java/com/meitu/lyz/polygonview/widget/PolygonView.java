@@ -1,6 +1,8 @@
 package com.meitu.lyz.polygonview.widget;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -16,6 +18,8 @@ import com.meitu.lyz.polygonview.R;
 import java.util.LinkedHashMap;
 
 /**
+ * 多边形View,可根据数据集绘制任意多边形
+ *
  * @author LYZ 2018.04.26
  */
 public class PolygonView extends View {
@@ -23,53 +27,89 @@ public class PolygonView extends View {
     private Context mContext;
 
     //边数
-    private int mEdgeNum = 0;
+    private int mEdgeNum;
 
-
+    //小标题
     private String[] mKeys;
+    //数据集
     private LinkedHashMap<String, Float> mData;
 
-    private float mMaxValue = 10, mMinValue = 0;
+    //最大最小数值 默认[0,10]
+    private float mMaxValue, mMinValue;
+    private static final int DEFAULT_MAX_VALUE = 10;
+    private static final int DEFAULT_MIN_VALUE = 0;
 
-    //内中外的比例
-    private int mInsideWeight = 3;
-    private int mMiddleWight = 3;
-    private int mOutsideWeight = 4;
+    //内中外的比例 默认3:3:4
+    private int mInsideWeight;
+    private int mMiddleWight;
+    private int mOutsideWeight;
+    private static final int DEFAULT_INSIDE_WEIGHT = 3;
+    private static final int DEFAULT_MIDDLE_WEIGHT = 3;
+    private static final int DEFAULT_OUTSIDE_WEIGHT = 4;
 
     //View实际的宽高
     private int mWidth, mHeight;
 
-    //分隔线和中间覆盖边界线的宽度
-    private int mEdgeWidth, mCoverEdgeWidth;
+    //边界及分隔线宽度
+    private int mEdgeWidth;
+    //数据集遮罩层边界线宽度
+    private int mCoverEdgeWidth;
+    //边界阴影的半径
     private int mEdgeShadowRadius;
 
     //多边形的半径
     private int mRadius;
 
+    //小标题和数据的文字大小，颜色
     private int mKeyTextSize;
     private int mValueTextSize;
     private int mKeyTextColor;
     private int mValueTextColor;
+
+    //用于获取文字高度的FontMetrics
     private Paint.FontMetrics mKeyFontMetrics, mValueFontMetrics;
+    //文字和多边形的间距
     private int mTextGraphMargin;
 
-    private int mEdgeColor, mEdgeShadowColor;
-    private int mInsideColor, mMiddleColor, mOutsideColor;
-    private int mCoverColor, mCoverEdgeColor;
+    //边界及分割线的颜色
+    private int mEdgeColor;
+    //边界阴影的颜色
+    private int mEdgeShadowColor;
+    //内圈的颜色
+    private int mInsideColor;
+    //中圈的颜色
+    private int mMiddleColor;
+    //外圈的颜色
+    private int mOutsideColor;
+    //数据集遮罩层的颜色
+    private int mCoverColor;
+    //数据集遮罩层边界的颜色
+    private int mCoverEdgeColor;
 
+    //多边形中心点
     private PointF mCenterPoint;
+
+    //内中外圈的点集
     private PointF[] mOutsideEdgePoints;
     private PointF[] mMiddleEdgePoints;
     private PointF[] mInsideEdgePoints;
+
+    //数据集的点集
     private PointF[] mValueEdgePoints;
+    //文字中心点集
     private PointF[] mTextPoints;
 
 
+    //内中外圈绘制路径
     private Path mOutsidePath;
     private Path mMiddlePath;
     private Path mInsidePath;
+
+    //边界及分割线绘制路径
     private Path mEdgePath;
+    //数据集绘制路径
     private Path mValueEdgePath;
+    //边界阴影绘制路径
     private Path mEdgeShadowPath;
 
     private Paint mBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -90,42 +130,60 @@ public class PolygonView extends View {
     public PolygonView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mContext = context;
-        initAttr();
+        initAttr(attrs);
         initPaint();
     }
 
-    private void initAttr() {
+
+    /**
+     * 初始化自定义属性
+     */
+    private void initAttr(AttributeSet attrs) {
+        //关闭硬件加速，以绘制阴影
         setLayerType(LAYER_TYPE_SOFTWARE, null);
 
-        mKeyTextColor = ContextCompat.getColor(mContext, R.color.polygon_view_key_text_color);
-        mValueTextColor = ContextCompat.getColor(mContext, R.color.polygon_view_value_text_color);
-        mEdgeColor = ContextCompat.getColor(mContext, R.color.polygon_view_edge_color);
-        mEdgeShadowColor = ContextCompat.getColor(mContext, R.color.polygon_view_edge_shadow_color);
-        mInsideColor = ContextCompat.getColor(mContext, R.color.polygon_view_inside_color);
-        mMiddleColor = ContextCompat.getColor(mContext, R.color.polygon_view_middle_color);
-        mOutsideColor = ContextCompat.getColor(mContext, R.color.polygon_view_outside_color);
-        mCoverColor = ContextCompat.getColor(mContext, R.color.polygon_view_cover_color);
-        mCoverEdgeColor = ContextCompat.getColor(mContext, R.color.polygon_view_cover_edge_color);
+        TypedArray typedArray = mContext.obtainStyledAttributes(attrs, R.styleable.PolygonView);
+        mKeyTextColor = typedArray.getColor(R.styleable.PolygonView_key_text_color, ContextCompat.getColor(mContext, R.color.polygon_view_key_text_color));
+        mValueTextColor = typedArray.getColor(R.styleable.PolygonView_value_text_color, ContextCompat.getColor(mContext, R.color.polygon_view_value_text_color));
+        mEdgeColor = typedArray.getColor(R.styleable.PolygonView_edge_color, ContextCompat.getColor(mContext, R.color.polygon_view_edge_color));
+        mEdgeShadowColor = typedArray.getColor(R.styleable.PolygonView_edge_shadow_color, ContextCompat.getColor(mContext, R.color.polygon_view_edge_shadow_color));
+        mInsideColor = typedArray.getColor(R.styleable.PolygonView_inside_color, ContextCompat.getColor(mContext, R.color.polygon_view_inside_color));
+        mMiddleColor = typedArray.getColor(R.styleable.PolygonView_middle_color, ContextCompat.getColor(mContext, R.color.polygon_view_middle_color));
+        mOutsideColor = typedArray.getColor(R.styleable.PolygonView_outside_color, ContextCompat.getColor(mContext, R.color.polygon_view_outside_color));
+        mCoverColor = typedArray.getColor(R.styleable.PolygonView_cover_color, ContextCompat.getColor(mContext, R.color.polygon_view_cover_color));
+        mCoverEdgeColor = typedArray.getColor(R.styleable.PolygonView_cover_edge_color, ContextCompat.getColor(mContext, R.color.polygon_view_cover_edge_color));
 
-        mKeyTextSize = mContext.getResources().getDimensionPixelSize(R.dimen.polygon_view_key_text_size);
-        mValueTextSize = mContext.getResources().getDimensionPixelSize(R.dimen.polygon_view_value_text_size);
 
-        mEdgeWidth = mContext.getResources().getDimensionPixelOffset(R.dimen.polygon_view_edge_width);
-        mCoverEdgeWidth = mContext.getResources().getDimensionPixelOffset(R.dimen.polygon_view_cover_edge_width);
-        mEdgeShadowRadius = mContext.getResources().getDimensionPixelOffset(R.dimen.polygon_view_edge_shadow_radius);
-        mTextGraphMargin = mContext.getResources().getDimensionPixelOffset(R.dimen.polygon_view_text_graph_margin);
+        mKeyTextSize = typedArray.getDimensionPixelOffset(R.styleable.PolygonView_key_text_size, mContext.getResources().getDimensionPixelSize(R.dimen.polygon_view_key_text_size));
+        mValueTextSize = typedArray.getDimensionPixelOffset(R.styleable.PolygonView_value_text_size, mContext.getResources().getDimensionPixelSize(R.dimen.polygon_view_value_text_size));
+
+        mEdgeWidth = typedArray.getDimensionPixelOffset(R.styleable.PolygonView_edge_width, mContext.getResources().getDimensionPixelOffset(R.dimen.polygon_view_edge_width));
+        mCoverEdgeWidth = typedArray.getDimensionPixelOffset(R.styleable.PolygonView_cover_edge_width, mContext.getResources().getDimensionPixelOffset(R.dimen.polygon_view_cover_edge_width));
+        mTextGraphMargin = typedArray.getDimensionPixelOffset(R.styleable.PolygonView_text_graph_margin, mContext.getResources().getDimensionPixelOffset(R.dimen.polygon_view_text_graph_margin));
+
+        mInsideWeight = typedArray.getInteger(R.styleable.PolygonView_inside_weight, DEFAULT_INSIDE_WEIGHT);
+        mMiddleWight = typedArray.getInteger(R.styleable.PolygonView_middle_weight, DEFAULT_MIDDLE_WEIGHT);
+        mOutsideWeight = typedArray.getInteger(R.styleable.PolygonView_outside_weight, DEFAULT_OUTSIDE_WEIGHT);
+
+        mMaxValue = typedArray.getFloat(R.styleable.PolygonView_max_value, DEFAULT_MAX_VALUE);
+        mMinValue = typedArray.getFloat(R.styleable.PolygonView_min_value, DEFAULT_MIN_VALUE);
+
+        typedArray.recycle();
 
     }
 
+    /**
+     * 初始化paint
+     */
     private void initPaint() {
         mCoverPaint.setColor(mCoverColor);
         mCoverEdgePaint.setColor(mCoverEdgeColor);
         mEdgePaint.setColor(mEdgeColor);
-        mEdgeShadowPaint.setColor(mCoverEdgeColor);
+        mEdgeShadowPaint.setColor(mEdgeShadowColor);
 
         mEdgePaint.setStyle(Paint.Style.STROKE);
         mCoverEdgePaint.setStyle(Paint.Style.STROKE);
-        mEdgeShadowPaint.setStyle(Paint.Style.STROKE);
+        mEdgeShadowPaint.setStyle(Paint.Style.FILL);
 
         mEdgePaint.setStrokeWidth(mEdgeWidth);
         mEdgeShadowPaint.setStrokeWidth(mEdgeWidth);
@@ -134,17 +192,23 @@ public class PolygonView extends View {
         mEdgePaint.setStrokeJoin(Paint.Join.ROUND);
         mCoverEdgePaint.setStrokeJoin(Paint.Join.ROUND);
 
-        mEdgeShadowPaint.setShadowLayer(mEdgeShadowRadius, 0, mEdgeShadowRadius / 2, mCoverEdgeColor);
-
         mTextPaint.setTypeface(Typeface.DEFAULT_BOLD);
         mTextPaint.setTextAlign(Paint.Align.CENTER);
+
+        //获取FontMetrics
         mTextPaint.setTextSize(mKeyTextSize);
         mKeyFontMetrics = mTextPaint.getFontMetrics();
         mTextPaint.setTextSize(mValueTextSize);
         mValueFontMetrics = mTextPaint.getFontMetrics();
     }
 
-    public void bindData(LinkedHashMap<String, Float> data) {
+    /**
+     * 绑定数据集
+     *
+     * @param data String,Float键值对  size>=3
+     * @return 是否绑定成功
+     */
+    public boolean bindData(LinkedHashMap<String, Float> data) {
         if (data != null && data.size() >= 3) {
             mEdgeNum = data.size();
             mKeys = new String[mEdgeNum];
@@ -154,7 +218,9 @@ public class PolygonView extends View {
             if (mCenterPoint != null)
                 initValueData();
             invalidate();
+            return true;
         }
+        return false;
     }
 
 
@@ -162,8 +228,8 @@ public class PolygonView extends View {
      * 计算背景的点及绘制路径
      */
     private void initBackgroundData() {
-        initEdgePoints();
-        initPath();
+        initBackgroundPoints();
+        initBackgroundPath();
     }
 
     /**
@@ -174,14 +240,20 @@ public class PolygonView extends View {
         initValuePath();
     }
 
-    private void initEdgePoints() {
+
+    /**
+     * 计算背景的点
+     */
+    private void initBackgroundPoints() {
         mOutsideEdgePoints = new PointF[mEdgeNum];
         mMiddleEdgePoints = new PointF[mEdgeNum];
         mInsideEdgePoints = new PointF[mEdgeNum];
         mTextPoints = new PointF[mEdgeNum];
 
+        //计算中心角的弧度
         double degree = 2 * Math.PI / mEdgeNum;
 
+        //根据权重计算比例
         int totalWeight = mInsideWeight + mMiddleWight + mOutsideWeight;
         float insideRate = mInsideWeight * 1f / totalWeight;
         float middleRate = (mMiddleWight + mInsideWeight) * 1f / totalWeight;
@@ -189,17 +261,20 @@ public class PolygonView extends View {
 
         for (int i = 0; i < mEdgeNum; i++) {
             mOutsideEdgePoints[i] = new PointF((float) (mCenterPoint.x + mRadius * Math.sin(degree * i)), (float) (mCenterPoint.y - mRadius * Math.cos(degree * i)));
-            mMiddleEdgePoints[i] = new PointF(((float) (mCenterPoint.x - (mCenterPoint.x - mOutsideEdgePoints[i].x) * middleRate)),
-                    (float) (mCenterPoint.y - (mCenterPoint.y - mOutsideEdgePoints[i].y) * middleRate));
-            mInsideEdgePoints[i] = new PointF(((float) (mCenterPoint.x - (mCenterPoint.x - mOutsideEdgePoints[i].x) * insideRate)),
-                    (float) (mCenterPoint.y - (mCenterPoint.y - mOutsideEdgePoints[i].y) * insideRate));
-            mTextPoints[i] = new PointF(((float) (mCenterPoint.x - (mCenterPoint.x - mOutsideEdgePoints[i].x) * textRate)),
-                    (float) (mCenterPoint.y - (mCenterPoint.y - mOutsideEdgePoints[i].y) * textRate));
+            mMiddleEdgePoints[i] = new PointF(mCenterPoint.x - (mCenterPoint.x - mOutsideEdgePoints[i].x) * middleRate,
+                    mCenterPoint.y - (mCenterPoint.y - mOutsideEdgePoints[i].y) * middleRate);
+            mInsideEdgePoints[i] = new PointF(mCenterPoint.x - (mCenterPoint.x - mOutsideEdgePoints[i].x) * insideRate,
+                    mCenterPoint.y - (mCenterPoint.y - mOutsideEdgePoints[i].y) * insideRate);
+            mTextPoints[i] = new PointF(mCenterPoint.x - (mCenterPoint.x - mOutsideEdgePoints[i].x) * textRate,
+                    mCenterPoint.y - (mCenterPoint.y - mOutsideEdgePoints[i].y) * textRate);
         }
     }
 
 
-    private void initPath() {
+    /**
+     * 计算背景的绘制路径
+     */
+    private void initBackgroundPath() {
         mInsidePath = new Path();
         mOutsidePath = new Path();
         mEdgePath = new Path();
@@ -238,21 +313,34 @@ public class PolygonView extends View {
             mEdgePath.lineTo(mOutsideEdgePoints[i].x, mOutsideEdgePoints[i].y);
         }
 
+
+        //设置Path的FillType为EVEN_ODD
         mMiddlePath.setFillType(Path.FillType.EVEN_ODD);
         mOutsidePath.setFillType(Path.FillType.EVEN_ODD);
 
     }
 
+    /**
+     * 计算数据的点
+     */
     private void initValueEdgePoints() {
         mValueEdgePoints = new PointF[mEdgeNum];
 
+        //计算偏移值，防止边线超出多边形边界
+        float offset = mCoverEdgeWidth / 2f / mRadius;
+
         for (int i = 0; i < mEdgeNum; i++) {
-            float proportion = getValueProportion(mData.get(mKeys[i]));
-            mValueEdgePoints[i] = new PointF(((float) (mCenterPoint.x - (mCenterPoint.x - mOutsideEdgePoints[i].x) * proportion)),
-                    (float) (mCenterPoint.y - (mCenterPoint.y - mOutsideEdgePoints[i].y) * proportion));
+            float proportion = getValueProportion(mData.get(mKeys[i])) - offset;
+            proportion = Math.max(0, proportion);
+            mValueEdgePoints[i] = new PointF(mCenterPoint.x - (mCenterPoint.x - mOutsideEdgePoints[i].x) * proportion,
+                    mCenterPoint.y - (mCenterPoint.y - mOutsideEdgePoints[i].y) * proportion);
         }
     }
 
+
+    /**
+     * 计算数据的绘制路径
+     */
     private void initValuePath() {
         mValueEdgePath = new Path();
         mValueEdgePath.moveTo(mValueEdgePoints[0].x, mValueEdgePoints[0].y);
@@ -275,6 +363,10 @@ public class PolygonView extends View {
             return (value - mMinValue) / (mMaxValue - mMinValue);
     }
 
+
+    /**
+     * 使宽高比固定为1:1
+     */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
@@ -286,14 +378,25 @@ public class PolygonView extends View {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
+    /**
+     * 计算半径并初始化各个点集
+     */
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         mWidth = w;
         mHeight = h;
-        mRadius = w / 2;
-        mCenterPoint = new PointF(mRadius, mRadius);
-        mRadius = (int) (mRadius - (mValueFontMetrics.bottom - mValueFontMetrics.top) - (mKeyFontMetrics.bottom - mKeyFontMetrics.top) - mTextGraphMargin);
+        mRadius = Math.min(w, h) / 2;
+        mCenterPoint = new PointF(w / 2, h / 2);
+
+        //实际半径为减去文字高度和文图间距的值
+        mRadius = (int) (mRadius - (mValueFontMetrics.bottom - mValueFontMetrics.top) * 1.5 - (mKeyFontMetrics.bottom - mKeyFontMetrics.top) * 1.5 - mTextGraphMargin);
+
+
+        //计算阴影半径
+        mEdgeShadowRadius = mRadius / 9;
+        // 设置阴影模糊效果
+        mEdgeShadowPaint.setMaskFilter(new BlurMaskFilter(mEdgeShadowRadius, BlurMaskFilter.Blur.NORMAL));
 
         initBackgroundData();
         initValueData();
@@ -304,6 +407,7 @@ public class PolygonView extends View {
         if (mEdgeNum == 0)
             return;
 
+        //自底向上依次绘制
         drawEdgeShadow(canvas);
         drawBackground(canvas);
         drawEdge(canvas);
@@ -313,6 +417,9 @@ public class PolygonView extends View {
     }
 
 
+    /**
+     * 绘制小标题及数值文字
+     */
     private void drawText(Canvas canvas) {
         mTextPaint.setTextSize(mKeyTextSize);
         mTextPaint.setColor(mKeyTextColor);
@@ -330,7 +437,9 @@ public class PolygonView extends View {
         }
     }
 
-
+    /**
+     * 绘制内中外圈背景
+     */
     private void drawBackground(Canvas canvas) {
         mBackgroundPaint.setColor(mInsideColor);
         canvas.drawPath(mInsidePath, mBackgroundPaint);
@@ -342,18 +451,32 @@ public class PolygonView extends View {
         canvas.drawPath(mOutsidePath, mBackgroundPaint);
     }
 
+    /**
+     * 绘制边界及分割线
+     */
     private void drawEdge(Canvas canvas) {
         canvas.drawPath(mEdgePath, mEdgePaint);
     }
 
+    /**
+     * 绘制边界阴影
+     */
     private void drawEdgeShadow(Canvas canvas) {
+        canvas.translate(0, mEdgeShadowRadius / 2);
         canvas.drawPath(mEdgeShadowPath, mEdgeShadowPaint);
+        canvas.translate(0, -mEdgeShadowRadius / 2);
     }
 
+    /**
+     * 绘制数据集遮罩层
+     */
     private void drawCover(Canvas canvas) {
         canvas.drawPath(mValueEdgePath, mCoverPaint);
     }
 
+    /**
+     * 绘制数据集遮罩层边界
+     */
     private void drawCoverEdge(Canvas canvas) {
         canvas.drawPath(mValueEdgePath, mCoverEdgePaint);
     }

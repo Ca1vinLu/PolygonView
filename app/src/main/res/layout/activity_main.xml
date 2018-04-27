@@ -6,7 +6,7 @@
     tools:context=".acitivity.MainActivity">
 
     <com.meitu.lyz.polygonview.widget.PolygonView
-        android:id="@+id/multi_dimensional_view"
+        android:id="@+id/polygon_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 

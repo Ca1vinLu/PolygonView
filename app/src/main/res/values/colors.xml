@@ -13,5 +13,5 @@
     <color name="polygon_view_edge_color">#ffffff</color>
     <color name="polygon_view_cover_color">#80977efc</color>
     <color name="polygon_view_cover_edge_color">#977efc</color>
-    <color name="polygon_view_edge_shadow_color">#512DA8</color>
+    <color name="polygon_view_edge_shadow_color">#e5defe</color>
 </resources>
