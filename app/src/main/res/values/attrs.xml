@@ -2,28 +2,45 @@
 <resources>
     <declare-styleable name="PolygonView">
 
+        <!--圆形的颜色-->
         <attr name="edge_color" format="color" />
+        <!--中间多边形边线的颜色-->
         <attr name="cover_edge_color" format="color" />
 
+        <!--普通小标题的文字颜色-->
         <attr name="key_text_color" format="color" />
+        <!--普通数据的文字颜色-->
         <attr name="value_text_color" format="color" />
+        <!--普通小标题的文字大小-->
         <attr name="key_text_size" format="dimension" />
+        <!--普通数据的文字大小-->
         <attr name="value_text_size" format="dimension" />
 
+        <!--最大数据小标题的文字颜色-->
         <attr name="max_key_text_color" format="color" />
+        <!--最大数据的文字颜色-->
         <attr name="max_value_text_color" format="color" />
+        <!--最大数据小标题的文字大小-->
         <attr name="max_key_text_size" format="dimension" />
+        <!--最大数据的文字大小-->
         <attr name="max_value_text_size" format="dimension" />
 
+        <!--圆形的线宽-->
         <attr name="edge_width" format="dimension" />
+        <!--中间多边形边线线宽-->
         <attr name="cover_edge_width" format="dimension" />
+        <!--文字和图形的间距-->
         <attr name="text_graph_margin" format="dimension" />
 
 
+        <!--中间多边形的右上角起始颜色-->
         <attr name="cover_start_color" format="color" />
+        <!--中间多边形的左下角结束暗色-->
         <attr name="cover_end_color" format="color" />
+        <!--中间多边形的透明度-->
         <attr name="cover_alpha" format="integer" />
 
+        <!--中间多边形的固定比例值-->
         <attr name="polygon_rate" format="float" />
 
     </declare-styleable>
