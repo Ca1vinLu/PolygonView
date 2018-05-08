@@ -2,7 +2,11 @@
 <resources>
     <dimen name="polygon_view_edge_width">1dp</dimen>
     <dimen name="polygon_view_cover_edge_width">1.5dp</dimen>
-    <dimen name="polygon_view_key_text_size">16sp</dimen>
-    <dimen name="polygon_view_value_text_size">18sp</dimen>
     <dimen name="polygon_view_text_graph_margin">12dp</dimen>
+
+    <dimen name="polygon_view_key_text_size">12sp</dimen>
+    <dimen name="polygon_view_value_text_size">14sp</dimen>
+    <dimen name="polygon_view_max_key_text_size">16sp</dimen>
+    <dimen name="polygon_view_max_value_text_size">18sp</dimen>
+
 </resources>

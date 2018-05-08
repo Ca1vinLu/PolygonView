@@ -3,11 +3,6 @@
     <declare-styleable name="PolygonView">
 
         <attr name="edge_color" format="color" />
-        <attr name="edge_shadow_color" format="color" />
-        <attr name="inside_color" format="color" />
-        <attr name="middle_color" format="color" />
-        <attr name="outside_color" format="color" />
-        <attr name="cover_color" format="color" />
         <attr name="cover_edge_color" format="color" />
 
         <attr name="key_text_color" format="color" />
@@ -15,15 +10,21 @@
         <attr name="key_text_size" format="dimension" />
         <attr name="value_text_size" format="dimension" />
 
+        <attr name="max_key_text_color" format="color" />
+        <attr name="max_value_text_color" format="color" />
+        <attr name="max_key_text_size" format="dimension" />
+        <attr name="max_value_text_size" format="dimension" />
+
         <attr name="edge_width" format="dimension" />
         <attr name="cover_edge_width" format="dimension" />
         <attr name="text_graph_margin" format="dimension" />
 
-        <attr name="inside_weight" format="integer" />
-        <attr name="middle_weight" format="integer" />
-        <attr name="outside_weight" format="integer" />
 
-        <attr name="max_value" format="float" />
-        <attr name="min_value" format="float" />
+        <attr name="cover_start_color" format="color" />
+        <attr name="cover_end_color" format="color" />
+        <attr name="cover_alpha" format="integer" />
+
+        <attr name="polygon_rate" format="float" />
+
     </declare-styleable>
 </resources>
