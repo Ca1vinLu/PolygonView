@@ -329,31 +329,52 @@ public class PolygonView extends View {
         mCenterPoint = new PointF(w / 2, h / 2);
 
 
-        //实际半径为减去文字高度和文图间距的值
-        mRadius = (int) (mRadius - (mMaxValueFontMetrics.bottom - mMaxValueFontMetrics.top) * 1.5 - (mMaxKeyFontMetrics.bottom - mMaxKeyFontMetrics.top) * 1.5 - mTextGraphMargin);
+        //计算半径，实际半径为减去文字高度和文图间距的值
+        mRadius = (int) (mRadius - (mMaxValueFontMetrics.bottom - mMaxValueFontMetrics.top) * 1.5 -
+                (mMaxKeyFontMetrics.bottom - mMaxKeyFontMetrics.top) * 1.5 - mTextGraphMargin);
 
-        //计算内部四个圆的半径
+        initBackgroundRadius();
+        initPathEffect();
+        initCoverPaintShader();
+
+
+        initBackgroundData();
+        initPolygonData();
+    }
+
+    /**
+     * 计算内部四个圆的半径
+     */
+    private void initBackgroundRadius() {
         mBackgroundRadius = new int[4];
         mBackgroundRadius[0] = mRadius / 5;
         for (int i = 1; i < 4; i++) {
             mBackgroundRadius[i] = mBackgroundRadius[0] * (i + 1);
         }
+    }
 
-        //计算内部圆虚线的长度
-        float interval = (float) (mBackgroundRadius[0] * 2 * Math.PI / 40f);
-        float[] intervals = {interval, interval};
-        mPathEffect = new DashPathEffect(intervals, 0);
 
+    /**
+     * 初始化CoverPaint的Shader
+     */
+    private void initCoverPaintShader() {
         //计算LinearGradient的两个端点的位置
         int offset = (int) (Math.sin(0.25 * Math.PI) * mRadius);
         LinearGradient linearGradient = new LinearGradient(mCenterPoint.x + offset, mCenterPoint.y - offset,
                 mCenterPoint.x - offset, mCenterPoint.y + offset,
                 mCoverStartColor, mCoverEndColor, Shader.TileMode.CLAMP);
         mCoverPaint.setShader(linearGradient);
+    }
 
+    /**
+     * 初始化PathEffect
+     */
+    private void initPathEffect() {
+        //计算内部圆虚线的长度
+        float interval = (float) (mBackgroundRadius[0] * 2 * Math.PI / 40f);
 
-        initBackgroundData();
-        initPolygonData();
+        float[] intervals = {interval, interval};
+        mPathEffect = new DashPathEffect(intervals, 0);
     }
 
     @Override
@@ -455,4 +476,106 @@ public class PolygonView extends View {
     }
 
 
+    public void setEdgeWidth(int edgeWidth) {
+        mEdgeWidth = edgeWidth;
+        mEdgePaint.setStrokeWidth(mEdgeWidth);
+        invalidate();
+    }
+
+    public void setCoverEdgeWidth(int coverEdgeWidth) {
+        mCoverEdgeWidth = coverEdgeWidth;
+        mCoverEdgePaint.setStrokeWidth(mCoverEdgeWidth);
+        invalidate();
+    }
+
+    public void setPolygonRate(float polygonRate) {
+        mPolygonRate = polygonRate;
+        initPolygonData();
+        invalidate();
+    }
+
+    public void setKeyTextSize(int keyTextSize) {
+        mKeyTextSize = keyTextSize;
+        invalidate();
+    }
+
+    public void setValueTextSize(int valueTextSize) {
+        mValueTextSize = valueTextSize;
+        mTextPaint.setTextSize(mValueTextSize);
+        mValueFontMetrics = mTextPaint.getFontMetrics();
+        onSizeChanged(mWidth, mHeight, mWidth, mHeight);
+        invalidate();
+    }
+
+    public void setKeyTextColor(int keyTextColor) {
+        mKeyTextColor = keyTextColor;
+        invalidate();
+    }
+
+    public void setValueTextColor(int valueTextColor) {
+        mValueTextColor = valueTextColor;
+        invalidate();
+    }
+
+    public void setMaxKeyTextSize(int maxKeyTextSize) {
+        mMaxKeyTextSize = maxKeyTextSize;
+        mTextPaint.setTextSize(mMaxKeyTextSize);
+        mMaxKeyFontMetrics = mTextPaint.getFontMetrics();
+        onSizeChanged(mWidth, mHeight, mWidth, mHeight);
+        invalidate();
+    }
+
+    public void setMaxValueTextSize(int maxValueTextSize) {
+        mMaxValueTextSize = maxValueTextSize;
+        mTextPaint.setTextSize(mMaxValueTextSize);
+        mMaxValueFontMetrics = mTextPaint.getFontMetrics();
+        onSizeChanged(mWidth, mHeight, mWidth, mHeight);
+        invalidate();
+    }
+
+    public void setMaxKeyTextColor(int maxKeyTextColor) {
+        mMaxKeyTextColor = maxKeyTextColor;
+        invalidate();
+    }
+
+    public void setMaxValueTextColor(int maxValueTextColor) {
+        mMaxValueTextColor = maxValueTextColor;
+        invalidate();
+    }
+
+    public void setTextGraphMargin(int textGraphMargin) {
+        mTextGraphMargin = textGraphMargin;
+        onSizeChanged(mWidth, mHeight, mWidth, mHeight);
+        invalidate();
+    }
+
+    public void setEdgeColor(int edgeColor) {
+        mEdgeColor = edgeColor;
+        mEdgePaint.setColor(mEdgeColor);
+        invalidate();
+    }
+
+    public void setCoverEdgeColor(int coverEdgeColor) {
+        mCoverEdgeColor = coverEdgeColor;
+        mCoverEdgePaint.setColor(mCoverEdgeColor);
+        invalidate();
+    }
+
+    public void setCoverStartColor(int coverStartColor) {
+        mCoverStartColor = coverStartColor;
+        initCoverPaintShader();
+        invalidate();
+    }
+
+    public void setCoverEndColor(int coverEndColor) {
+        mCoverEndColor = coverEndColor;
+        initCoverPaintShader();
+        invalidate();
+    }
+
+    public void setCoverAlpha(int coverAlpha) {
+        mCoverAlpha = coverAlpha;
+        mCoverPaint.setAlpha(mCoverAlpha);
+        invalidate();
+    }
 }
